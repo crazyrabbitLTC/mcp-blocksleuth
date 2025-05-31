@@ -36,5 +36,5 @@ ENV NODE_ENV=production
 ENV TRANSPORT=sse
 ENV PORT=3456
 
-# Run the server with a small delay to ensure env vars are loaded
-CMD ["sh", "-c", "sleep 2 && bun dist/src/index.js --transport ${TRANSPORT} --port ${PORT}"]
+# Run the server with a longer delay and env debugging
+CMD ["sh", "-c", "sleep 5 && echo 'Environment check:' && env | grep -E '(DUNE|PORT|TRANSPORT)' && bun dist/src/index.js --transport ${TRANSPORT} --port ${PORT}"]
