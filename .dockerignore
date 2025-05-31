@@ -1,0 +1,16 @@
+node_modules
+dist
+.env
+.git
+.gitignore
+*.log
+.DS_Store
+test-scripts
+server*.log
+README.md
+BUILDING.md
+DEPLOYMENT.md
+fly.toml
+docker-compose.yml
+Dockerfile
+.dockerignore

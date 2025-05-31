@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  blocksleuth:
+    build: .
+    ports:
+      - "3456:3456"
+    environment:
+      - DUNE_API_KEY=${DUNE_API_KEY}
+      - NODE_ENV=production
+      - TRANSPORT=sse
+      - PORT=3456
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3456/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
