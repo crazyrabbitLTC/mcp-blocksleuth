@@ -14,17 +14,6 @@ import { startSSEServer } from "./sse-server.js";
 // Load environment variables
 dotenv.config();
 
-// Function to validate environment
-function validateEnvironment() {
-  const DUNE_API_KEY = process.env.DUNE_API_KEY;
-  if (!DUNE_API_KEY) {
-    console.error("FATAL ERROR: DUNE_API_KEY is not set in the environment variables.");
-    console.error("Available environment variables:", Object.keys(process.env).filter(k => !k.includes('SECRET')).join(', '));
-    process.exit(1);
-  }
-  return DUNE_API_KEY;
-}
-
 // Initialize the MCP server
 const server = new McpServer({
   name: "MCPWeb3Stats",
@@ -42,8 +31,6 @@ registerAllResources(server);
 registerAllPrompts(server);
 
 async function main() {
-  // Validate environment variables after startup
-  const DUNE_API_KEY = validateEnvironment();
   // Check for CLI arguments
   const args = process.argv.slice(2);
   

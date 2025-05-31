@@ -82,7 +82,12 @@ export async function startSSEServer(server: McpServer, port: number) {
       res.end(JSON.stringify({ 
         status: 'ok', 
         version: VERSION,
-        sessions: transports.size 
+        sessions: transports.size,
+        env: {
+          hasApiKey: !!process.env.DUNE_API_KEY,
+          port: process.env.PORT || 'not set',
+          transport: process.env.TRANSPORT || 'not set'
+        }
       }));
     }
     else {
