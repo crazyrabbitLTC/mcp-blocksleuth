@@ -25,6 +25,9 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/package.json ./
 
+# Make sure the built files are executable
+RUN chmod -R 755 /app/dist
+
 # Expose port (default 3456)
 EXPOSE 3456
 
@@ -34,4 +37,4 @@ ENV TRANSPORT=sse
 ENV PORT=3456
 
 # Run the server
-CMD ["sh", "-c", "bun run dist/src/index.js --transport ${TRANSPORT} --port ${PORT}"]
+CMD ["sh", "-c", "bun dist/src/index.js --transport ${TRANSPORT} --port ${PORT}"]
