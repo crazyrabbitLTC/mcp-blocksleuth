@@ -1,7 +1,7 @@
 {
-  "name": "mcp-web3-stats-v2",
+  "name": "mcp-blocksleuth",
   "version": "2.0.0",
-  "description": "Enhanced MCP Server v2 with modular architecture, combining Dune Analytics and Blockscout APIs for comprehensive blockchain analysis",
+  "description": "BlockSleuth MCP Server - Advanced blockchain investigation tool combining Dune Analytics and Blockscout APIs",
   "author": "Dennison Bertram <dennison@dennisonbertram.com>",
   "license": "MIT",
   "keywords": [
@@ -21,17 +21,17 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/crazyrabbitLTC/mcp-web3-stats-v2"
+    "url": "https://github.com/crazyrabbitLTC/mcp-blocksleuth"
   },
   "bugs": {
-    "url": "https://github.com/crazyrabbitLTC/mcp-web3-stats-v2/issues"
+    "url": "https://github.com/crazyrabbitLTC/mcp-blocksleuth/issues"
   },
-  "homepage": "https://github.com/crazyrabbitLTC/mcp-web3-stats-v2#readme",
+  "homepage": "https://github.com/crazyrabbitLTC/mcp-blocksleuth#readme",
   "type": "module",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "bin": {
-    "mcp-web3-stats": "./dist/src/index.js"
+    "mcp-blocksleuth": "./dist/src/index.js"
   },
   "files": [
     "dist",
