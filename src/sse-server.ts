@@ -29,26 +29,45 @@ export async function startSSEServer(server: McpServer, port: number) {
     // SSE endpoint for establishing connection
     if (url.pathname === '/sse' && req.method === 'GET') {
       console.log('New SSE connection request');
+      
+      // Set SSE headers first
+      res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+        'X-Session-Id': 'pending' // Placeholder
+      });
+      
       const transport = new SSEServerTransport('/message', res);
       
       // Store transport by session ID before starting
       const sessionId = transport.sessionId;
       transports.set(sessionId, transport);
       
+      // Send session ID as initial SSE event
+      res.write(`data: ${JSON.stringify({ type: 'session', sessionId })}
+
+`);
+      
       // Connect to MCP server (this automatically calls start())
       await server.connect(transport);
       
       // Clean up on close
-      transport.onclose = () => {
+      res.on('close', () => {
         transports.delete(sessionId);
         console.log(`SSE connection closed: ${sessionId}`);
+      });
+      
+      transport.onclose = () => {
+        transports.delete(sessionId);
       };
       
       console.log(`SSE connection established: ${sessionId}`);
     }
     // Message endpoint for receiving JSON-RPC messages
     else if (url.pathname === '/message' && req.method === 'POST') {
-      const sessionId = req.headers['x-session-id'] as string;
+      // Try both header and query param for session ID
+      const sessionId = req.headers['x-session-id'] as string || url.searchParams.get('sessionId');
       
       if (!sessionId || !transports.has(sessionId)) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
@@ -58,15 +77,17 @@ export async function startSSEServer(server: McpServer, port: number) {
       
       const transport = transports.get(sessionId)!;
       
+      // Use the SDK's handlePostMessage method
       let body = '';
       req.on('data', chunk => body += chunk.toString());
       req.on('end', async () => {
         try {
           const message = JSON.parse(body);
+          
+          // The transport should handle the message and response
           await transport.handleMessage(message);
           
-          // For now, just acknowledge receipt
-          // The actual response will come through SSE
+          // For SSE, we just acknowledge receipt
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ status: 'ok', sessionId }));
         } catch (error) {
