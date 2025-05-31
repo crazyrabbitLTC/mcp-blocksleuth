@@ -21,12 +21,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/YOUR_USERNAME/mcp-web3-stats-v2"
+    "url": "https://github.com/crazyrabbitLTC/mcp-web3-stats-v2"
   },
   "bugs": {
-    "url": "https://github.com/YOUR_USERNAME/mcp-web3-stats-v2/issues"
+    "url": "https://github.com/crazyrabbitLTC/mcp-web3-stats-v2/issues"
   },
-  "homepage": "https://github.com/YOUR_USERNAME/mcp-web3-stats-v2#readme",
+  "homepage": "https://github.com/crazyrabbitLTC/mcp-web3-stats-v2#readme",
   "type": "module",
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
