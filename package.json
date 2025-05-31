@@ -1,0 +1,59 @@
+{
+  "name": "mcp-web3-stats-v2",
+  "version": "2.0.0",
+  "description": "Enhanced MCP Server v2 with modular architecture, combining Dune Analytics and Blockscout APIs for comprehensive blockchain analysis",
+  "author": "Dennison Bertram <dennison@dennisonbertram.com>",
+  "license": "MIT",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "blockchain",
+    "web3",
+    "dune",
+    "blockscout",
+    "crypto",
+    "ethereum",
+    "solana",
+    "defi",
+    "nft",
+    "sse",
+    "http"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/YOUR_USERNAME/mcp-web3-stats-v2"
+  },
+  "bugs": {
+    "url": "https://github.com/YOUR_USERNAME/mcp-web3-stats-v2/issues"
+  },
+  "homepage": "https://github.com/YOUR_USERNAME/mcp-web3-stats-v2#readme",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "bin": {
+    "mcp-web3-stats": "./dist/src/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "build": "bunx tsc",
+    "prepublishOnly": "bun run build",
+    "lint": "bunx tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.11.4",
+    "dotenv": "^16.4.5",
+    "zod": "^3.23.8"
+  }
+}
