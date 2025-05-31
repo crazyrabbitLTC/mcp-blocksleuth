@@ -1,6 +1,6 @@
-# Web3 Stats Enhanced - Dune + Blockscout MCP Server
+# BlockSleuth - Advanced Blockchain Investigation MCP Server
 
-This project implements a Model Context Protocol (MCP) server that combines the power of Dune Analytics and Blockscout APIs, providing comprehensive blockchain data analysis capabilities for LLM agents and MCP clients.
+BlockSleuth is a powerful Model Context Protocol (MCP) server that combines Dune Analytics and Blockscout APIs to provide comprehensive blockchain investigation and analysis capabilities for LLM agents and MCP clients.
 
 ## 🚀 What's New in Version 2.0
 
