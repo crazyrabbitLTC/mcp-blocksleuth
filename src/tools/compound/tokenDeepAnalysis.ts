@@ -3,6 +3,7 @@ import { z } from "zod";
 import { callDuneApi } from "../../utils/api.js";
 import { callBlockscoutApi } from "../../utils/api.js";
 import { BLOCKSCOUT_NETWORKS } from "../../utils/constants.js";
+import { getChainId, getNetworkName } from "../../utils/helpers.js";
 
 export function registerTokenDeepAnalysisTool(server: McpServer) {
   server.tool(
@@ -10,10 +11,14 @@ export function registerTokenDeepAnalysisTool(server: McpServer) {
   "Comprehensive token analysis combining real-time transfers from Blockscout with holder analytics from Dune.",
   {
     tokenAddress: z.string().describe("The token contract address"),
-    chainId: z.string().describe("The chain ID (e.g., '1' for Ethereum, '137' for Polygon)"),
+    chainId: z.string().describe("The chain ID or network name (e.g., '1', 'ethereum', '137', 'polygon')"),
   },
   async ({ tokenAddress, chainId }) => {
     try {
+      // Convert network name to chain ID if necessary
+      const numericChainId = getChainId(chainId);
+      const networkName = getNetworkName(numericChainId);
+      
       // Fetch data from both sources in parallel
       const [
         blockscoutTokenInfo,
@@ -23,15 +28,15 @@ export function registerTokenDeepAnalysisTool(server: McpServer) {
         duneHolders
       ] = await Promise.all([
         // Blockscout data
-        callBlockscoutApi(chainId, `/tokens/${tokenAddress}`).catch(err => ({ error: err.message })),
-        callBlockscoutApi(chainId, `/tokens/${tokenAddress}/transfers`, new URLSearchParams({ items_count: "10" }))
+        callBlockscoutApi(numericChainId, `/tokens/${tokenAddress}`).catch(err => ({ error: err.message })),
+        callBlockscoutApi(numericChainId, `/tokens/${tokenAddress}/transfers`, new URLSearchParams({ items_count: "10" }))
           .catch(err => ({ error: err.message })),
-        callBlockscoutApi(chainId, `/tokens/${tokenAddress}/holders`, new URLSearchParams({ items_count: "10" }))
+        callBlockscoutApi(numericChainId, `/tokens/${tokenAddress}/holders`, new URLSearchParams({ items_count: "10" }))
           .catch(err => ({ error: err.message })),
         // Dune data
-        callDuneApi(`/v1/evm/token-info/${chainId}/${tokenAddress}`, new URLSearchParams({ chain_ids: chainId }))
+        callDuneApi(`/v1/evm/token-info/${numericChainId}/${tokenAddress}`, new URLSearchParams({ chain_ids: numericChainId }))
           .catch(err => ({ error: err.message })),
-        callDuneApi(`/v1/evm/token-holders/${chainId}/${tokenAddress}`, new URLSearchParams({ limit: "10" }))
+        callDuneApi(`/v1/evm/token-holders/${numericChainId}/${tokenAddress}`, new URLSearchParams({ limit: "10" }))
           .catch(err => ({ error: err.message }))
       ]) as [any, any, any, any, any];
 

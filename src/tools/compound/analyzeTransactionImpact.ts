@@ -3,6 +3,7 @@ import { z } from "zod";
 import { callDuneApi } from "../../utils/api.js";
 import { callBlockscoutApi } from "../../utils/api.js";
 import { BLOCKSCOUT_NETWORKS } from "../../utils/constants.js";
+import { getChainId, getNetworkName } from "../../utils/helpers.js";
 
 export function registerAnalyzeTransactionImpactTool(server: McpServer) {
   server.tool(
@@ -10,21 +11,25 @@ export function registerAnalyzeTransactionImpactTool(server: McpServer) {
   "Deep dive into a transaction's full impact by combining Blockscout's detailed traces with Dune's wallet context.",
   {
     txHash: z.string().describe("The transaction hash to analyze"),
-    chainId: z.string().describe("The chain ID (e.g., '1' for Ethereum, '137' for Polygon)"),
+    chainId: z.string().describe("The chain ID or network name (e.g., '1', 'ethereum', '137', 'polygon')"),
   },
   async ({ txHash, chainId }) => {
     try {
+      // Convert network name to chain ID if necessary
+      const numericChainId = getChainId(chainId);
+      const networkName = getNetworkName(numericChainId);
+      
       // First get transaction details from Blockscout
-      const txDetails: any = await callBlockscoutApi(chainId, `/transactions/${txHash}`);
+      const txDetails: any = await callBlockscoutApi(numericChainId, `/transactions/${txHash}`);
       
       // Fetch additional transaction data in parallel
       const [txLogs, txInternalTxs, txStateChanges, senderActivity, receiverActivity] = await Promise.all([
         // Get logs from Blockscout
-        callBlockscoutApi(chainId, `/transactions/${txHash}/logs`).catch(err => ({ error: err.message })),
+        callBlockscoutApi(numericChainId, `/transactions/${txHash}/logs`).catch(err => ({ error: err.message })),
         // Get internal transactions
-        callBlockscoutApi(chainId, `/transactions/${txHash}/internal-transactions`).catch(err => ({ error: err.message })),
+        callBlockscoutApi(numericChainId, `/transactions/${txHash}/internal-transactions`).catch(err => ({ error: err.message })),
         // Get state changes
-        callBlockscoutApi(chainId, `/transactions/${txHash}/state-changes`).catch(err => ({ error: err.message })),
+        callBlockscoutApi(numericChainId, `/transactions/${txHash}/state-changes`).catch(err => ({ error: err.message })),
         // Get sender's recent activity from Dune
         txDetails.from?.hash ? 
           callDuneApi(`/v1/evm/activity/${txDetails.from.hash}`, new URLSearchParams({ limit: "5" }))

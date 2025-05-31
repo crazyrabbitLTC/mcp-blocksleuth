@@ -3,7 +3,7 @@ import { z } from "zod";
 import { callDuneApi } from "../../utils/api.js";
 import { callBlockscoutApi } from "../../utils/api.js";
 import { BLOCKSCOUT_NETWORKS } from "../../utils/constants.js";
-import { determineWalletType, determinePrimaryUse } from "../../utils/helpers.js";
+import { determineWalletType, determinePrimaryUse, getChainId, getNetworkName } from "../../utils/helpers.js";
 
 export function registerProfileWalletBehaviorTool(server: McpServer) {
   server.tool(
@@ -11,10 +11,13 @@ export function registerProfileWalletBehaviorTool(server: McpServer) {
   "Create a comprehensive behavioral profile of a wallet by combining real-time activity from Blockscout with historical patterns from Dune.",
   {
     walletAddress: z.string().describe("The wallet address to profile"),
-    chainId: z.string().describe("The chain ID (e.g., '1' for Ethereum, '137' for Polygon)"),
+    chainId: z.string().describe("The chain ID or network name (e.g., '1', 'ethereum', '137', 'polygon')"),
   },
   async ({ walletAddress, chainId }) => {
     try {
+      // Convert network name to chain ID if necessary
+      const numericChainId = getChainId(chainId);
+      const networkName = getNetworkName(numericChainId);
       // Fetch comprehensive wallet data from both sources
       const [
         blockscoutInfo,
@@ -25,14 +28,14 @@ export function registerProfileWalletBehaviorTool(server: McpServer) {
         duneActivity
       ] = await Promise.all([
         // Blockscout data
-        callBlockscoutApi(chainId, `/addresses/${walletAddress}`).catch(err => ({ error: err.message })),
-        callBlockscoutApi(chainId, `/addresses/${walletAddress}/transactions`, new URLSearchParams({ items_count: "20" }))
+        callBlockscoutApi(numericChainId, `/addresses/${walletAddress}`).catch(err => ({ error: err.message })),
+        callBlockscoutApi(numericChainId, `/addresses/${walletAddress}/transactions`, new URLSearchParams({ items_count: "20" }))
           .catch(err => ({ error: err.message })),
-        callBlockscoutApi(chainId, `/addresses/${walletAddress}/tokens`).catch(err => ({ error: err.message })),
-        callBlockscoutApi(chainId, `/addresses/${walletAddress}/internal-transactions`, new URLSearchParams({ items_count: "10" }))
+        callBlockscoutApi(numericChainId, `/addresses/${walletAddress}/tokens`).catch(err => ({ error: err.message })),
+        callBlockscoutApi(numericChainId, `/addresses/${walletAddress}/internal-transactions`, new URLSearchParams({ items_count: "10" }))
           .catch(err => ({ error: err.message })),
         // Dune data
-        callDuneApi(`/v1/evm/balances/${walletAddress}`, new URLSearchParams({ chain_ids: chainId }))
+        callDuneApi(`/v1/evm/balances/${walletAddress}`, new URLSearchParams({ chain_ids: numericChainId }))
           .catch(err => ({ error: err.message })),
         callDuneApi(`/v1/evm/activity/${walletAddress}`, new URLSearchParams({ limit: "20" }))
           .catch(err => ({ error: err.message }))
@@ -93,8 +96,8 @@ export function registerProfileWalletBehaviorTool(server: McpServer) {
       const profile = {
         wallet: {
           address: walletAddress,
-          chainId: chainId,
-          network: BLOCKSCOUT_NETWORKS[chainId]?.name || `Chain ${chainId}`,
+          chainId: numericChainId,
+          network: networkName,
           ens: blockscoutInfo?.ens_domain_name,
           createdAt: blockscoutInfo?.creation_transaction_hash ? "tracked" : "unknown",
         },
